@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerConnect - University of Zululand</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e2a38 0%, #2c3e50 100%);
+      color: #f0f4f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box {
+      background: #243447;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      color: #f0f4f9;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo h2 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .logo p {
+      color: #a0aec0;
+      font-size: 15px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #d1d5db;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #3b4a5a;
+      border-radius: 8px;
+      background: #1f2d3d;
+      color: #f0f4f9;
+      font-size: 16px;
+    }
+
+    .form-group input::placeholder {
+      color: #94a3b8;
+    }
+
+    .login-button {
+      padding: 12px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .login-button:hover {
+      background: #2980b9;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+      color: #a0aec0;
+    }
+
+    .links a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .success { 
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
+
+    .error { 
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #243447;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 450px;
+      padding: 25px;
+      color: #f0f4f9;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #3b4a5a;
+    }
+
+    .modal-header h1 {
+      font-weight: 600;
+      font-size: 20px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+
+    .modal-body {
+      margin-bottom: 15px;
+    }
+
+    .modal-form input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #3b4a5a;
+      border-radius: 6px;
+      font-size: 15px;
+      background: #1f2d3d;
+      color: #f0f4f9;
+    }
+
+    .modal-button {
+      padding: 10px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .modal-button:hover {
+      background: #2980b9;
+    }
+
+    .modal-footer {
+      text-align: center;
+      margin-top: 10px;
+      color: #a0aec0;
+      font-size: 14px;
+    }
+
+    .modal-footer a {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .modal-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="logo">
+        <h2><i class="fas fa-book-open"></i> PeerConnect</h2>
+        <p>University of Zululand Student Portal</p>
+      </div>
+      
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="studentNumber">Student Number</label>
+          <input type="text" id="studentNumber" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="login-button">Login</button>
+      </form>
+
+      <p id="successMessage" class="success"></p>
+      <p id="errorMessage" class="error"></p>
+
+      <div class="links">
+        <a id="forgotPasswordLink">Forgot Password?</a> |
+        <a id="activateAccountLink">Activate Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1><i class="fas fa-book-open"></i> PeerConnect</h1>
+        <button class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Reset your password</p>
+        <form id="forgotPasswordForm" class="modal-form">
+          <div class="form-group">
+            <label for="studentEmail">Email</label>
+            <input type="email" id="studentEmail" required />
+          </div>
+          <button type="submit" class="modal-button">Reset Password</button>
+        </form>
+        <p id="forgotPasswordSuccess" class="success"></p>
+        <p id="forgotPasswordError" class="error"></p>
+        <div class="modal-footer">
+          <a id="backToLoginFromForgot">Back to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activate Account Modal -->
+  <div id="activateAccountModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1><i class="fas fa-book-open"></i> PeerConnect</h1>
+        <button class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Activate your student account</p>
+        <form id="activateAccountForm" class="modal-form">
+          <div class="form-group">
+            <label for="activateStudentNumber">Student Number</label>
+            <input type="text" id="activateStudentNumber" required />
+          </div>
+          <div class="form-group">
+            <label for="activateEmail">Email</label>
+            <input type="email" id="activateEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="activatePassword">Password</label>
+            <input type="password" id="activatePassword" required />
+          </div>
+          <button type="submit" class="modal-button">Activate</button>
+        </form>
+        <p id="activateAccountSuccess" class="success"></p>
+        <p id="activateAccountError" class="error"></p>
+        <div class="modal-footer">
+          <a id="backToLoginFromActivate">Back to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config and Scripts -->
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

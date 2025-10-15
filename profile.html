@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - PeerConnect</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: #ecf0f1;
+      margin: 0; 
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Glass morphism effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .navbar h1 {
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .profile-container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .profile-container h2 {
+      color: white;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #ecf0f1;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ecf0f1;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .static-field {
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ecf0f1;
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .save-btn {
+      background: #3498db;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .save-btn:hover {
+      background: #2980b9;
+    }
+
+    .change-password-link {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      margin-left: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.3s ease;
+    }
+
+    .change-password-link:hover {
+      color: white;
+    }
+
+    .courses-list {
+      list-style: none;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .courses-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .courses-list li:last-child {
+      border-bottom: none;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      margin-top: 25px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      color: #2c3e50;
+      border-radius: 12px;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 22px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-info h3 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .profile-info p {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Form Layout */
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      
+      .change-password-link {
+        margin-left: 0;
+      }
+    }
+
+    /* Loading states */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .loading i {
+      margin-right: 8px;
+    }
+
+    .error-message {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar glass-card">
+    <h1><i class="fas fa-book-open"></i> PeerConnect</h1>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="profile.html" class="nav-link active"><i class="fas fa-user"></i> Profile</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book"></i> Courses</a>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="profile-container">
+    <h2>My Profile</h2>
+    
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <img id="profileAvatar" src="" alt="Profile">
+      </div>
+      <div class="profile-info">
+        <h3 id="profileName">Loading...</h3>
+        <p id="profileEmail">Loading...</p>
+      </div>
+    </div>
+    
+    <form id="profileForm" class="glass-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" required placeholder="Enter your first name" />
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" required placeholder="Enter your last name" />
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Student Number</label>
+          <p id="studentNumber" class="static-field">Loading...</p>
+        </div>
+        
+        <div class="form-group">
+          <label>Student Email</label>
+          <p id="studentEmail" class="static-field">Loading...</p>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="yearOfStudy">Year of Study</label>
+          <select id="yearOfStudy" required>
+            <option value="">Select year of study</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+            <option value="Postgraduate">Postgraduate</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Registration Status</label>
+          <p id="registrationStatus" class="static-field">Loading...</p>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="department">Department</label>
+        <select id="department" required>
+          <option value="">Select department</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Registered Courses</label>
+        <ul id="registeredCourses" class="courses-list">
+          <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading courses...</div>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label>Registered Modules</label>
+        <ul id="registeredModules" class="courses-list">
+          <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading modules...</div>
+        </ul>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <a href="#" id="openPasswordModal" class="change-password-link">
+          <i class="fas fa-lock"></i> Change Password
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Password Modal -->
+  <div class="modal" id="passwordModal">
+    <div class="modal-content">
+      <h3>Change Password</h3>
+      <form id="passwordForm">
+        <div class="form-group">
+          <label for="oldPassword">Current Password</label>
+          <input id="oldPassword" type="password" required placeholder="Enter current password" />
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input id="newPassword" type="password" required placeholder="Enter new password" />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm New Password</label>
+          <input id="confirmPassword" type="password" required placeholder="Confirm new password" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="closeModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:5000/api";
+    const token = localStorage.getItem("peerconnect_auth_token");
+    const cachedUser = JSON.parse(localStorage.getItem("peerconnect_user") || "{}");
+
+    // ========== Helper to call APIs ==========
+    async function api(endpoint, method = "GET", body = null) {
+      const opts = { 
+        method, 
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        } 
+      };
+      if (body) opts.body = JSON.stringify(body);
+      
+      const res = await fetch(API_BASE + endpoint, opts);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    // ========== Instant UI from localStorage ==========
+    function populateFromLocal() {
+      if (!cachedUser || !cachedUser.id) return;
+      
+      document.getElementById("firstName").value = cachedUser.first_name || "";
+      document.getElementById("lastName").value = cachedUser.last_name || "";
+      document.getElementById("studentNumber").textContent = cachedUser.studentNumber || "Not assigned";
+      document.getElementById("studentEmail").textContent = cachedUser.email || "";
+      
+      // Set profile header
+      document.getElementById("profileName").textContent = 
+        `${cachedUser.first_name || ''} ${cachedUser.last_name || ''}`.trim() || 'User';
+      document.getElementById("profileEmail").textContent = cachedUser.email || '';
+      
+      // Set avatar
+      const avatarUrl = cachedUser.avatar || 
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedUser.first_name + ' ' + cachedUser.last_name)}&background=3498db&color=fff`;
+      document.getElementById("profileAvatar").src = avatarUrl;
+    }
+
+    // ========== Fetch fresh data from backend ==========
+    async function loadProfile() {
+      try {
+        const user = await api("/users/me");
+        localStorage.setItem("peerconnect_user", JSON.stringify(user));
+
+        document.getElementById("firstName").value = user.firstName || user.first_name || "";
+        document.getElementById("lastName").value = user.lastName || user.last_name || "";
+        document.getElementById("studentNumber").textContent = user.studentNumber || "Not assigned";
+        document.getElementById("studentEmail").textContent = user.email || "";
+        document.getElementById("yearOfStudy").value = user.yearOfStudy || "";
+        document.getElementById("bio").value = user.bio || "";
+        document.getElementById("registrationStatus").textContent = user.registrationStatus || "Unknown";
+
+        // Update profile header
+        document.getElementById("profileName").textContent = 
+          `${user.firstName || user.first_name || ''} ${user.lastName || user.last_name || ''}`.trim() || 'User';
+        document.getElementById("profileEmail").textContent = user.email || '';
+
+        // Set avatar
+        const avatarUrl = user.avatar || 
+          `https://ui-avatars.com/api/?name=${encodeURIComponent((user.firstName || user.first_name) + ' ' + (user.lastName || user.last_name))}&background=3498db&color=fff`;
+        document.getElementById("profileAvatar").src = avatarUrl;
+
+        // Load departments
+        const depts = await api("/departments");
+        const deptSelect = document.getElementById("department");
+        deptSelect.innerHTML = '<option value="">Select department</option>';
+        depts.forEach(d => {
+          const opt = document.createElement("option");
+          opt.value = d.id;
+          opt.textContent = d.name;
+          if (d.id == user.departmentId) opt.selected = true;
+          deptSelect.appendChild(opt);
+        });
+
+        // Load courses
+        const courses = await api("/courses").catch(() => []);
+        const cList = document.getElementById("registeredCourses");
+        cList.innerHTML = "";
+        if (!courses.length) {
+          cList.innerHTML = "<li>No courses registered</li>";
+        } else {
+          courses.forEach(c => {
+            const li = document.createElement("li");
+            li.textContent = c.course_name || c.name;
+            cList.appendChild(li);
+          });
+        }
+
+        // Load modules
+        const modsRes = await api("/modules").catch(() => ({ modules: [] }));
+        const mods = modsRes.modules || modsRes;
+        const mList = document.getElementById("registeredModules");
+        mList.innerHTML = "";
+        if (!mods.length) {
+          mList.innerHTML = "<li>No modules registered</li>";
+        } else {
+          mods.forEach(m => {
+            const li = document.createElement("li");
+            li.textContent = m.name || m.module_name;
+            mList.appendChild(li);
+          });
+        }
+
+      } catch (err) {
+        console.error("Profile load failed:", err);
+        
+        if (err.message.includes("401") || err.message.includes("token")) {
+          alert("Your session has expired. Please log in again.");
+          localStorage.removeItem("peerconnect_auth_token");
+          localStorage.removeItem("peerconnect_user");
+          window.location.href = "index.html";
+        } else {
+          showError("Failed to load profile data. Please try again.");
+        }
+      }
+    }
+
+    // ========== Save profile updates ==========
+    document.getElementById("profileForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        const updated = await api("/users/profile", "PUT", {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          yearOfStudy: document.getElementById("yearOfStudy").value,
+          departmentId: document.getElementById("department").value,
+          bio: document.getElementById("bio").value
+        });
+        
+        localStorage.setItem("peerconnect_user", JSON.stringify(updated));
+        alert("Profile updated successfully!");
+        
+        // Update profile header with new data
+        document.getElementById("profileName").textContent = 
+          `${updated.firstName || updated.first_name || ''} ${updated.lastName || updated.last_name || ''}`.trim() || 'User';
+          
+      } catch (err) {
+        alert("Error updating profile. Please try again.");
+      }
+    });
+
+    // ========== Password change modal ==========
+    const modal = document.getElementById("passwordModal");
+    document.getElementById("openPasswordModal").onclick = (e) => {
+      e.preventDefault();
+      modal.style.display = "flex";
+    };
+    
+    document.getElementById("closeModal").onclick = () => {
+      modal.style.display = "none";
+      document.getElementById("passwordForm").reset();
+    };
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+        document.getElementById("passwordForm").reset();
+      }
+    });
+
+    document.getElementById("passwordForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const oldPassword = document.getElementById("oldPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (newPassword !== confirmPassword) {
+        alert("New passwords do not match");
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        alert("Password must be at least 6 characters long");
+        return;
+      }
+
+      try {
+        await api("/users/change-password", "PUT", { oldPassword, newPassword });
+        alert("Password changed successfully!");
+        modal.style.display = "none";
+        document.getElementById("passwordForm").reset();
+      } catch (err) {
+        alert("Error changing password. Please check your current password and try again.");
+      }
+    });
+
+    // ========== Utility Functions ==========
+    function showError(message) {
+      // Create error message element
+      const errorEl = document.createElement('div');
+      errorEl.className = 'error-message';
+      errorEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+      
+      // Insert at the top of the form
+      const form = document.getElementById("profileForm");
+      form.insertBefore(errorEl, form.firstChild);
+      
+      // Remove after 5 seconds
+      setTimeout(() => {
+        if (errorEl.parentNode) {
+          errorEl.remove();
+        }
+      }, 5000);
+    }
+
+    // ========== Initialize ==========
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!token) {
+        window.location.href = "index.html";
+        return;
+      }
+      
+      populateFromLocal(); // instant view from cache
+      loadProfile();       // refresh from backend
+    });
+  </script>
+</body>
+</html>

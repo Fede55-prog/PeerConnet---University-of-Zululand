@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeerConnect - Notifications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color:#ecf0f1; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+    .glass-card { background:rgba(255,255,255,0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius:16px; border:1px solid rgba(255,255,255,0.12); box-shadow:0 8px 32px 0 rgba(0,0,0,0.3); }
+    .navbar { display:flex; justify-content:space-between; align-items:center; padding:15px 30px; background:rgba(255,255,255,0.08); border-radius:12px; margin-bottom:30px; }
+    .navbar h1 { color:#fff; display:flex; align-items:center; gap:10px; }
+    .nav-links { display:flex; gap:20px; }
+    .nav-link { color:rgba(255,255,255,0.7); padding:8px 15px; border-radius:20px; text-decoration:none; display:flex; align-items:center; gap:8px; transition:all .3s ease; }
+    .nav-link.active, .nav-link:hover { background:rgba(255,255,255,0.15); color:#fff; }
+    .notification-bell { position:relative; font-size:20px; color:#fff; cursor:pointer; }
+    .badge { position:absolute; top:-5px; right:-5px; width:18px; height:18px; background:#e74c3c; color:#fff; border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+    .container { max-width:800px; width:100%; padding:25px; }
+    .container h2 { color:#fff; text-align:center; margin-bottom:20px; font-size:28px; }
+    .filters { text-align:center; margin-bottom:15px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; }
+    .filters label { color:rgba(255,255,255,0.9); font-weight:500; }
+    .filters select { padding:10px 15px; border-radius:8px; border:none; font-size:14px; background:rgba(255,255,255,0.1); color:#fff; cursor:pointer; transition:all .3s ease; }
+    .filters select:focus { outline:none; background:rgba(255,255,255,0.15); box-shadow:0 0 0 2px rgba(52,152,219,0.5); }
+    .filters select option { background:#2c3e50; color:#fff; }
+    .inline-actions { display:flex; gap:10px; align-items:center; }
+    .inline-btn { padding:8px 12px; border:none; border-radius:10px; font-size:13px; cursor:pointer; transition:all .25s ease; }
+    .inline-btn:hover { filter:brightness(1.08); }
+    .mark-all { background:#2ecc71; color:#fff; }
+    .clear-filters { background:transparent; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.25); }
+    .notification-item { background:rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:15px; color:#fff; transition:all .3s ease; }
+    .notification-item:hover { background:rgba(255,255,255,0.12); transform:translateY(-2px); }
+    .notification-item.unread { background:rgba(255,255,255,0.15); border-left:4px solid #2ecc71; }
+    .notification-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:10px; }
+    .notification-header h4 { font-size:16px; margin-bottom:5px; color:#ecf0f1; }
+    .notification-header p { color:rgba(255,255,255,0.85); line-height:1.5; }
+    .notification-time { font-size:12px; color:rgba(255,255,255,0.7); white-space:nowrap; margin-left:15px; }
+    .notification-actions { margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; }
+    .notification-btn { padding:8px 15px; border:none; border-radius:15px; font-size:13px; cursor:pointer; transition:all .25s ease; display:flex; align-items:center; gap:6px; }
+    .view-btn { background:#3498db; color:#fff; }
+    .view-btn:hover { background:#2980b9; }
+    .mark-read-btn { background:transparent; color:rgba(255,255,255,0.8); font-size:12px; border:1px solid rgba(255,255,255,0.35); }
+    .mark-read-btn:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .loading { display:flex; justify-content:center; align-items:center; padding:40px; color:rgba(255,255,255,0.8); }
+    .loading i { margin-right:10px; }
+    .error-message { background:rgba(231,76,60,0.2); color:#e74c3c; padding:15px; border-radius:8px; text-align:center; margin:10px 0; border:1px solid rgba(231,76,60,0.3); }
+    .empty-state { text-align:center; padding:40px; color:rgba(255,255,255,0.7); }
+    .empty-state i { font-size:48px; margin-bottom:15px; color:rgba(255,255,255,0.5); }
+    @media (max-width: 768px) {
+      .navbar { flex-direction:column; gap:15px; }
+      .nav-links { flex-wrap:wrap; justify-content:center; }
+      .notification-header { flex-direction:column; gap:10px; }
+      .notification-time { margin-left:0; }
+      .notification-actions { flex-wrap:wrap; }
+      .filters { flex-direction:column; gap:10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="navbar glass-card">
+      <h1><i class="fas fa-book-open"></i> PeerConnect</h1>
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="notifications.html" class="nav-link active"><i class="fas fa-bell"></i> Notifications</a>
+      </nav>
+      <div class="notification-bell">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notificationBadge">0</span>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding: 25px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <h2>Notifications</h2>
+        <div class="inline-actions">
+          <button id="markAllBtn" class="inline-btn mark-all"><i class="fas fa-check-double"></i> Mark all as read</button>
+          <button id="clearFiltersBtn" class="inline-btn clear-filters"><i class="fas fa-filter-circle-xmark"></i> Clear filters</button>
+        </div>
+      </div>
+
+      <div class="filters" style="margin-top:12px;">
+        <label for="typeFilter">Filter by type:</label>
+        <select id="typeFilter">
+          <option value="">All</option>
+          <option value="material">Materials</option>
+          <option value="discussion">Discussions</option>
+          <option value="system">System</option>
+          <option value="message">Messages</option>
+          <option value="announcement">Announcements</option>
+          <option value="comment">Comments</option>
+          <option value="like">Likes</option>
+        </select>
+      </div>
+
+      <div id="notificationsList" class="notifications-list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading notifications...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:5000/api";
+    const token = localStorage.getItem("peerconnect_auth_token");
+    if (!token) window.location.href = "index.html";
+
+    // Socket.io (optional auth passthrough)
+    const socket = io("http://localhost:5000", { auth: { token } });
+
+    // DOM
+    const notificationsList = document.getElementById("notificationsList");
+    const notificationBadge = document.getElementById("notificationBadge");
+    const typeFilter = document.getElementById("typeFilter");
+    const markAllBtn = document.getElementById("markAllBtn");
+    const clearFiltersBtn = document.getElementById("clearFiltersBtn");
+
+    // State
+    let allNotifications = [];
+
+    // ---------------- API helpers ----------------
+    async function fetchNotifications() {
+      try {
+        const res = await fetch(`${API_BASE}/notifications`, {
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch notifications");
+
+        // Normalize: ensure we have `read` property
+        allNotifications = (data.notifications || []).map(n => ({
+          ...n,
+          read: typeof n.read === "boolean" ? n.read : !!n.is_read
+        }));
+
+        applyFilter();
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+        showError("Failed to load notifications. Please try again.");
+      }
+    }
+
+    async function markAsRead(id) {
+      try {
+        const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
+          method: "PUT",
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || "Failed to mark read");
+
+        const n = allNotifications.find(x => String(x.id) === String(id));
+        if (n) n.read = true;
+        applyFilter();
+      } catch (err) {
+        console.error("Error marking notification read:", err);
+        showError("Failed to mark notification as read.");
+      }
+    }
+
+    async function markAsUnread(id) {
+      try {
+        const res = await fetch(`${API_BASE}/notifications/${id}/unread`, {
+          method: "PUT",
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || "Failed to mark unread");
+
+        const n = allNotifications.find(x => String(x.id) === String(id));
+        if (n) n.read = false;
+        applyFilter();
+      } catch (err) {
+        console.error("Error marking notification unread:", err);
+        showError("Failed to mark notification as unread.");
+      }
+    }
+
+    async function markAllAsRead() {
+      try {
+        const res = await fetch(`${API_BASE}/notifications/read-all`, {
+          method: "PUT",
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || "Failed to mark all read");
+
+        allNotifications = allNotifications.map(n => ({ ...n, read: true }));
+        applyFilter();
+      } catch (err) {
+        console.error("Error marking all read:", err);
+        showError("Failed to mark all as read.");
+      }
+    }
+
+    // ---------------- UI helpers ----------------
+    function applyFilter() {
+      const filter = typeFilter.value;
+      const list = filter ? allNotifications.filter(n => n.type === filter) : allNotifications;
+      displayNotifications(list);
+      updateBadge(allNotifications);
+    }
+
+    function displayNotifications(notifications) {
+      notificationsList.innerHTML = "";
+
+      if (!notifications.length) {
+        notificationsList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <h3>No notifications</h3>
+            <p>When you receive notifications, they’ll appear here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      notifications.forEach(n => {
+        const item = document.createElement("div");
+        item.className = `notification-item ${n.read ? "" : "unread"}`;
+        item.innerHTML = `
+          <div class="notification-header">
+            <div style="flex:1">
+              <h4>${getNotificationTitle(n.type)}</h4>
+              <p>${escapeHtml(n.message || "No message content")}</p>
+              ${n.course ? `<p style="font-size:12px; color:rgba(255,255,255,0.6); margin-top:5px;">Course: ${escapeHtml(n.course)}</p>` : ""}
+            </div>
+            <div class="notification-time">${formatTime(n.created_at)}</div>
+          </div>
+          <div class="notification-actions">
+            <button class="notification-btn view-btn" data-view="${n.id}">
+              <i class="fas fa-eye"></i> View
+            </button>
+            ${
+              n.read
+                ? `<button class="notification-btn mark-read-btn" data-unread="${n.id}">
+                     <i class="fas fa-envelope-open"></i> Mark as unread
+                   </button>`
+                : `<button class="notification-btn mark-read-btn" data-read="${n.id}">
+                     <i class="fas fa-check"></i> Mark as read
+                   </button>`
+            }
+          </div>
+        `;
+        notificationsList.appendChild(item);
+      });
+
+      // Attach listeners (delegated)
+      notificationsList.querySelectorAll("[data-read]").forEach(btn => {
+        btn.onclick = () => markAsRead(btn.getAttribute("data-read"));
+      });
+      notificationsList.querySelectorAll("[data-unread]").forEach(btn => {
+        btn.onclick = () => markAsUnread(btn.getAttribute("data-unread"));
+      });
+      notificationsList.querySelectorAll("[data-view]").forEach(btn => {
+        btn.onclick = () => viewNotification(btn.getAttribute("data-view"));
+      });
+    }
+
+    function updateBadge(notifications) {
+      const unread = notifications.filter(n => !n.read).length;
+      notificationBadge.textContent = unread;
+      notificationBadge.style.display = unread > 0 ? "flex" : "none";
+    }
+
+    function viewNotification(id) {
+      const n = allNotifications.find(x => String(x.id) === String(id));
+      if (!n) return;
+
+      // Mark as read when viewed
+      if (!n.read) markAsRead(id);
+
+      // Navigate by type
+      switch (n.type) {
+        case "material":     window.location.href = `study-materials.html?notification=${id}`; break;
+        case "discussion":   window.location.href = `forum.html?notification=${id}`; break;
+        case "message":      window.location.href = `messages.html?notification=${id}`; break;
+        case "announcement": window.location.href = `announcements.html?notification=${id}`; break;
+        default:             alert(`Notification: ${n.message}`);
+      }
+    }
+
+    function getNotificationTitle(type) {
+      const titles = {
+        material: "New Study Material",
+        discussion: "Discussion Update",
+        system: "System Notification",
+        message: "New Message",
+        announcement: "Announcement",
+        comment: "New Comment",
+        like: "New Like"
+      };
+      return titles[type] || "Notification";
+    }
+
+    function formatTime(ts) {
+      if (!ts) return "Recently";
+      const now = new Date();
+      const t = new Date(ts);
+      const diff = now - t;
+      const mins = Math.floor(diff / 60000);
+      const hrs  = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 1) return "Just now";
+      if (mins < 60) return `${mins}m ago`;
+      if (hrs  < 24) return `${hrs}h ago`;
+      if (days < 7) return `${days}d ago`;
+      return t.toLocaleDateString();
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
+    }
+
+    function showError(message) {
+      notificationsList.innerHTML = `
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i> ${escapeHtml(message)}
+        </div>
+      `;
+    }
+
+    // --------------- Socket events ---------------
+    socket.on("connect", () => console.log("Connected to notifications server"));
+    socket.on("disconnect", () => console.log("Disconnected from notifications server"));
+    socket.on("error", (err) => console.error("Socket error:", err));
+
+    // Server pushes (your backend already emits { id, type, message, created_at, read:false })
+    socket.on("new_notification", (n) => {
+      // Normalize structure, ensure read flag exists
+      const normalized = { ...n, read: typeof n.read === "boolean" ? n.read : !!n.is_read };
+      allNotifications.unshift(normalized);
+      applyFilter();
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("PeerConnect", { body: normalized.message, icon: "/favicon.ico" });
+      }
+    });
+
+    // --------------- UI events -------------------
+    typeFilter.addEventListener("change", applyFilter);
+    markAllBtn.addEventListener("click", markAllAsRead);
+    clearFiltersBtn.addEventListener("click", () => {
+      typeFilter.value = "";
+      applyFilter();
+    });
+
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchNotifications);
+  </script>
+</body>
+</html>
