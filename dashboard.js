@@ -1,6 +1,6 @@
 // public/dashboard.js
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_BASE = (window.PEERCONNECT_API_BASE || "http://localhost:5000/api").replace(/\/+$/, "");
+  const API_BASE = (window.PEERCONNECT_API_BASE || "https://educonnect-backend-spso.onrender.com/api").replace(/\/+$/, "");
   const AUTH_KEY = "peerconnect_auth_token";
   const token = localStorage.getItem(AUTH_KEY);
 
@@ -168,3 +168,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   })();
 });
+
