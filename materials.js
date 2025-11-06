@@ -1,5 +1,5 @@
 // public/materials.js
-const API_BASE = (window.PEERCONNECT_API_BASE || "https://educonnect-backend-spso.onrender.com/api").replace(/\/+$/, "");
+const API_BASE = (window.PEERCONNECT_API_BASE || "http://localhost:5000/api").replace(/\/+$/, "");
 const AUTH_KEY = "peerconnect_auth_token";
 const token = localStorage.getItem(AUTH_KEY);
 
@@ -19,6 +19,7 @@ const fileInput      = document.getElementById("fileInput");
 const fileName       = document.getElementById("fileName");
 const uploadForm     = document.getElementById("uploadForm");
 const linkInput      = document.getElementById("linkInput");
+const materialModule = document.getElementById("materialModule");
 
 // Optional access modal
 const accessModal    = document.getElementById("accessModal");
@@ -47,6 +48,7 @@ paginationContainer.style.color = "white";
 materialsList.insertAdjacentElement("afterend", paginationContainer);
 
 let studyMaterials = [];
+let allModules = [];
 let currentPage = 1;
 let totalPages = 1;
 const limit = 10;
@@ -59,6 +61,44 @@ function authHeaders(extra = {}) {
 }
 
 // ---------------- API ----------------
+async function fetchModules() {
+  try {
+    const res = await fetch(`${API_BASE}/modules`, { headers: authHeaders() });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    
+    if (data.success && data.modules) {
+      allModules = data.modules;
+      populateModuleFilters();
+    }
+  } catch (err) {
+    console.error("Error fetching modules:", err);
+  }
+}
+
+function populateModuleFilters() {
+  // Clear existing options (keeping "All Modules" and "Select Module")
+  while (moduleFilter.children.length > 1) {
+    moduleFilter.removeChild(moduleFilter.lastChild);
+  }
+  while (materialModule.children.length > 1) {
+    materialModule.removeChild(materialModule.lastChild);
+  }
+  
+  // Add modules from database
+  allModules.forEach(module => {
+    const option1 = document.createElement("option");
+    option1.value = module.name;
+    option1.textContent = module.name;
+    moduleFilter.appendChild(option1);
+    
+    const option2 = document.createElement("option");
+    option2.value = module.name;
+    option2.textContent = module.name;
+    materialModule.appendChild(option2);
+  });
+}
+
 async function fetchDownloadStatus() {
   try {
     const res = await fetch(`${API_BASE}/study-materials/me/status`, { headers: authHeaders() });
@@ -124,8 +164,6 @@ async function uploadMaterial(formData) {
   }
 }
 
-// Always use gated endpoint (even for external links). Server will redirect when appropriate.
-
 function downloadMaterial(id) {
   // Always hit the gated endpoint, include token, and open in a new tab.
   const url = `${API_BASE}/study-materials/download/${id}?token=${encodeURIComponent(token)}`;
@@ -134,7 +172,6 @@ function downloadMaterial(id) {
   const w = window.open(url, "_blank", "noopener");
   if (!w) window.location.href = url;
 }
-
 
 // ---------------- UI ----------------
 function renderMaterials() {
@@ -334,9 +371,11 @@ window.addEventListener("click", (e) => {
 
 // ---------------- Init ----------------
 (async () => {
+  await fetchModules(); // Load modules first
   await fetchDownloadStatus();
   await fetchMaterials(1);
 })();
+
 
 
 
