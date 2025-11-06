@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const backToLoginFromForgot = document.getElementById("backToLoginFromForgot");
   const backToLoginFromActivate = document.getElementById("backToLoginFromActivate");
 
-  const API_BASE = "https://educonnect-backend-spso.onrender.com/api";
+  const API_BASE = "http://localhost:5000/api";
 
   // ---------------- MODAL FUNCTIONS ----------------
   function showModal(modal) {
@@ -203,4 +203,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
 
