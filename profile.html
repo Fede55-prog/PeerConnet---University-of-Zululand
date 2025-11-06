@@ -413,7 +413,7 @@
         
         <div class="form-group">
           <label>Registration Status</label>
-          <p id="registrationStatus" class="static-field">Loading...</p>
+          <p id="registrationStatus" class="static-field">Registered</p>
         </div>
       </div>
       
@@ -480,7 +480,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://educonnect-backend-spso.onrender.com/api";
+    const API_BASE = "http://localhost:5000/api";
     const token = localStorage.getItem("peerconnect_auth_token");
     const cachedUser = JSON.parse(localStorage.getItem("peerconnect_user") || "{}");
 
@@ -523,7 +523,7 @@
       document.getElementById("profileAvatar").src = avatarUrl;
     }
 
-    // ========== Fetch fresh data from backend ==========
+    //  Fetch fresh data from backend 
     async function loadProfile() {
       try {
         const user = await api("/users/me");
@@ -535,7 +535,7 @@
         document.getElementById("studentEmail").textContent = user.email || "";
         document.getElementById("yearOfStudy").value = user.yearOfStudy || "";
         document.getElementById("bio").value = user.bio || "";
-        document.getElementById("registrationStatus").textContent = user.registrationStatus || "Unknown";
+        document.getElementById("registrationStatus").textContent = user.registrationStatus || "Registered";
 
         // Update profile header
         document.getElementById("profileName").textContent = 
@@ -564,7 +564,7 @@
         const cList = document.getElementById("registeredCourses");
         cList.innerHTML = "";
         if (!courses.length) {
-          cList.innerHTML = "<li>No courses registered</li>";
+          cList.innerHTML = "<li>Registered</li>";
         } else {
           courses.forEach(c => {
             const li = document.createElement("li");
@@ -602,7 +602,7 @@
       }
     }
 
-    // ========== Save profile updates ==========
+    // Save profile updates 
     document.getElementById("profileForm").addEventListener("submit", async e => {
       e.preventDefault();
       try {
@@ -626,7 +626,7 @@
       }
     });
 
-    // ========== Password change modal ==========
+    // Password change modal 
     const modal = document.getElementById("passwordModal");
     document.getElementById("openPasswordModal").onclick = (e) => {
       e.preventDefault();
@@ -703,5 +703,5 @@
     });
   </script>
 </body>
-
 </html>
+
