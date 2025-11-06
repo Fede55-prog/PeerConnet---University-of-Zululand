@@ -130,7 +130,6 @@
     .chat-header-info{flex:1;}
     .chat-header-info h4{margin:0;font-size:16px;cursor:pointer;}
     .chat-header-info span{font-size:12px;color:var(--light-text);}
-    .typing{font-size:12px;color:var(--light-text);margin-left:6px;}
 
     .chat-log{
       flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;
@@ -284,11 +283,7 @@
       overflow: hidden;
     }
 
-    .message-toast.show {
-      transform: translateX(0);
-      opacity: 1;
-    }
-
+    .message-toast.show { transform: translateX(0); opacity: 1; }
     .message-toast.hide {
       transform: translateX(400px);
       opacity: 0;
@@ -298,69 +293,18 @@
       margin-bottom: 0;
     }
 
-    .toast-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .toast-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .toast-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .toast-sender {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    .toast-time {
-      font-size: 11px;
-      color: var(--light-text);
-    }
-
+    .toast-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+    .toast-content { flex: 1; min-width: 0; }
+    .toast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .toast-sender { font-weight: 600; font-size: 14px; color: var(--text); }
+    .toast-time { font-size: 11px; color: var(--light-text); }
     .toast-message {
-      font-size: 13px;
-      color: var(--light-text);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-size: 13px; color: var(--light-text); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-
-    .toast-close {
-      background: none;
-      border: none;
-      color: var(--light-text);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-
-    .toast-close:hover {
-      background: var(--hover);
-      color: var(--text);
-    }
-
-    .toast-indicator {
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 4px;
-    }
+    .toast-close { background: none; border: none; color: var(--light-text); cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0; }
+    .toast-close:hover { background: var(--hover); color: var(--text); }
+    .toast-indicator { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 
     /* Notification badge */
     .notification-badge {
@@ -391,10 +335,7 @@
       border: 2px solid var(--card-bg);
     }
 
-    .avatar-container {
-      position: relative;
-      display: inline-block;
-    }
+    .avatar-container { position: relative; display: inline-block; }
 
     /* Notifications panel */
     .notifications-panel {
@@ -413,6 +354,10 @@
       display: none;
     }
 
+    /* Hide typing & “Online” label */
+    .typing { display: none !important; }
+    #chatUserStatus { display: none !important; }
+
     /* Responsive */
     @media (max-width:1100px){
       .container{grid-template-columns:1fr 2fr}
@@ -422,10 +367,7 @@
       .container{grid-template-columns:1fr}
       .search-bar{width:56vw}
       .messenger{height:60vh;}
-      .toast-container {
-        right: 10px;
-        max-width: 300px;
-      }
+      .toast-container { right: 10px; max-width: 300px; }
     }
   </style>
 </head>
@@ -478,7 +420,7 @@
               <img id="chatUserAvatar" src="" alt="User" class="view-profile" data-user="">
               <div class="chat-header-info">
                 <h4 id="chatUserName" class="view-profile" data-user=""></h4>
-                <span id="chatUserStatus">Online</span><span id="typingDot" class="typing" style="display:none"> · typing…</span>
+                <span id="chatUserStatus">Online</span><span id="typingDot" class="typing"> · typing…</span>
               </div>
             </div>
             <div class="chat-log" id="chatLog">
@@ -747,7 +689,7 @@
 
 <script>
   // ====== CONFIG ======
-  const API_BASE = (window.PEERCONNECT_API_BASE || "https://educonnect-backend-spso.onrender.com/api").replace(/\/+$/,"");
+  const API_BASE = (window.PEERCONNECT_API_BASE || "http://localhost:5000/api").replace(/\/+$/,"");
   const AUTH_TOKEN_KEY = "peerconnect_auth_token";
 
   // ====== STATE ======
@@ -764,6 +706,7 @@
   let currentConversationId = null;
   let messagesByConvo = new Map();
   const unreadByConvo = new Map();
+  // typing removed: keep variables unused-safe
   let typingTimer = null;
 
   // ====== CLIENT-SIDE ONLY SOLUTION ======
@@ -952,9 +895,9 @@
 
       if (totalUnread > 0) {
         if (!badge) {
-          badge = document.createElement('span');
-          badge.className = 'notification-badge';
-          bellIcon.style.position = 'relative';
+          badge = document.createElement("span");
+          badge.className = "notification-badge";
+          bellIcon.style.position = "relative";
           bellIcon.appendChild(badge);
         }
         badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
@@ -1133,7 +1076,7 @@
   const chatSend = document.getElementById("chatSend");
   const chatUserName = document.getElementById("chatUserName");
   const chatUserAvatar = document.getElementById("chatUserAvatar");
-  const typingDot = document.getElementById("typingDot");
+  const typingDot = document.getElementById("typingDot"); // kept but hidden via CSS
 
   document.querySelectorAll(".close,[data-close]").forEach(el=>{
     el.addEventListener("click",()=>{
@@ -1161,6 +1104,22 @@
     }
     const m = modules.find(mm => String(mm.id) === String(p.module));
     return m ? (m.code || m.name || `#${m.id}`) : `#${p.module}`;
+  }
+
+  // New helpers: sort conversations (unread first, then newest)
+  function getLastMessageTimestamp(convo) {
+    const cid = convo.conversation_id;
+    const msgs = messagesByConvo.get(cid) || [];
+    if (msgs.length) return new Date(msgs[msgs.length - 1].created_at || 0).getTime();
+    return new Date(convo.updated_at || convo.last_message_at || 0).getTime();
+  }
+  function sortConversations(list) {
+    return [...list].sort((a, b) => {
+      const ua = unreadByConvo.get(a.conversation_id) || 0;
+      const ub = unreadByConvo.get(b.conversation_id) || 0;
+      if ((ub > 0) !== (ua > 0)) return ub - ua; // unread first
+      return getLastMessageTimestamp(b) - getLastMessageTimestamp(a); // newest first
+    });
   }
 
   // ====== POSTS RENDER ======
@@ -1199,8 +1158,8 @@
           <p>${escapeHtml(p.content || '')}</p>
         </div>
         <div class="post-stats">
-          <div>❤️ ${p.likes || 0}</div>
-          <div>👁️ ${p.views || 0}</div>
+          <div>❤ ${p.likes || 0}</div>
+          <div>👁 ${p.views || 0}</div>
           <div id="comment-count-${p.id}">💬 ${typeof p.comment_count === 'number' ? p.comment_count : (Array.isArray(p.comments) ? p.comments.length : 0)}</div>
         </div>
         <div class="post-buttons">
@@ -1812,7 +1771,10 @@
 
     const q = (document.getElementById("convSearch").value || "").toLowerCase();
 
-    for (const c of myConversations) {
+    // sort before rendering (unread first, then newest)
+    const sorted = sortConversations(myConversations);
+
+    for (const c of sorted) {
       const others = (c.participants || []).filter(p => String(p.id) !== String(currentUser.id));
       const name = others.map(p => `${p.first_name || p.firstName || ''} ${p.last_name || p.lastName || ''}`.trim()).join(", ") || "Conversation";
       if (q && !name.toLowerCase().includes(q)) continue;
@@ -1820,19 +1782,13 @@
       const cid = c.conversation_id;
       let msgs = messagesByConvo.get(cid);
 
+      // lazy-load messages if needed to compute preview/time
       if (!msgs || msgs.length === 0) {
         try {
           const res = await getConversationMessages(cid);
-          if (res.success && res.messages?.length) {
-            msgs = res.messages;
-            messagesByConvo.set(cid, msgs);
-          } else {
-            msgs = [];
-          }
-        } catch (e) {
-          console.error("Failed to load messages for conversation:", cid, e);
-          msgs = [];
-        }
+          msgs = (res.success && res.messages) ? res.messages : [];
+          messagesByConvo.set(cid, msgs);
+        } catch { msgs = []; }
       }
 
       const unread = unreadByConvo.get(cid) || 0;
@@ -1874,7 +1830,8 @@
         const div = document.createElement("div");
         div.className = "msg " + (mine ? "you" : "them");
         const t = new Date(m.created_at || Date.now()).toLocaleTimeString();
-        const ticks = mine ? '<span class="ticks">✔✔</span>' : '';
+        // Only show double-ticks if the message was SEEN (no ticks for delivered or recipient offline)
+        const ticks = (mine && m.seen) ? '<span class="ticks">✔✔</span>' : '';
         div.innerHTML = `${escapeHtml(m.content||'')}
                          <div class="msg-time">${t} ${ticks}</div>`;
         chatLog.appendChild(div);
@@ -1887,6 +1844,7 @@
     currentConversationId = conversationId;
     if (socket) socket.emit("join_conversation", conversationId);
 
+    // clear local unread for this convo
     unreadByConvo.set(conversationId, 0);
     renderConversations();
     messageNotifier.updateNotificationBadge();
@@ -1995,11 +1953,7 @@
     currentConversationId = null;
   });
 
-  chatText.addEventListener("input", () => {
-    typingDot.style.display = "inline";
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => (typingDot.style.display = "none"), 1000);
-  });
+  // typing indicator removed (no handler)
 
   chatSend.addEventListener("click", async () => {
     const content = (chatText.value || "").trim();
@@ -2012,6 +1966,8 @@
         messagesByConvo.set(currentConversationId, arr);
         chatText.value = "";
         renderChatMessages(currentConversationId);
+        // Re-render list to bump conversation to top
+        renderConversations();
       }
     } catch (e) {
       console.error("Send message error:", e);
@@ -2034,12 +1990,13 @@
         messagesByConvo.set(cid, arr);
 
         if (cid !== currentConversationId) {
-          const newUnreadCount = (unreadByConvo.get(cid) || 0) + 1;
-          unreadByConvo.set(cid, newUnreadCount);
+          unreadByConvo.set(cid, (unreadByConvo.get(cid) || 0) + 1);
           messageNotifier.showNotification(message);
+        } else {
+          renderChatMessages(cid);
         }
 
-        if (cid === currentConversationId) renderChatMessages(cid);
+        // Re-render list so newest & unread float to the top
         renderConversations();
       });
 
@@ -2096,15 +2053,29 @@
     }
   }
 
+  // Preload convo messages so sorting has correct timestamps
   async function loadConversations(){
     try{
       const res = await getMyConversations();
-      if (res.success){
-        myConversations = res.conversations || [];
-        renderConversations();
-      } else {
+      if (!res.success){
         convList.innerHTML = '<div class="error-message">Failed to load conversations</div>';
+        return;
       }
+      myConversations = res.conversations || [];
+
+      await Promise.all(
+        myConversations.map(async c => {
+          const cid = c.conversation_id;
+          if (!messagesByConvo.has(cid)) {
+            try {
+              const r = await getConversationMessages(cid);
+              if (r.success) messagesByConvo.set(cid, r.messages || []);
+            } catch { /* ignore */ }
+          }
+        })
+      );
+
+      renderConversations();
     }catch(e){
       console.error("Load conversations error:", e);
       convList.innerHTML = '<div class="error-message">Failed to load conversations</div>';
@@ -2132,7 +2103,6 @@
   });
 </script>
 
-
 </body>
+</html> 
 
-</html>
