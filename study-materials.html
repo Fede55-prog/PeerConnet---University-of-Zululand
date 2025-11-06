@@ -154,6 +154,17 @@
       min-width: 150px; 
     } 
     
+    /* Change dropdown options to grey */
+    .filters select option {
+      background: #2c3e50;
+      color: #bdc3c7;
+      padding: 10px;
+    }
+
+    .filters select option:hover {
+      background: #34495e;
+    }
+
     .filters button { 
       display: flex; 
       align-items: center; 
@@ -536,11 +547,7 @@
     <div class="filters">
       <select id="moduleFilter">
         <option value="">All Modules</option>
-        <option value="Mathematics">Mathematics</option>
-        <option value="Physics">Physics</option>
-        <option value="Computer Science">Computer Science</option>
-        <option value="Chemistry">Chemistry</option>
-        <option value="Biology">Biology</option>
+        <!-- Modules will be loaded dynamically from database -->
       </select>
 
       <select id="yearFilter">
@@ -551,7 +558,7 @@
       <select id="typeFilter">
         <option value="">All Types</option>
         <option>Lecture Notes</option><option>Past Papers</option>
-        <option>Study Guide</option><option>Textbook</option><option>Cheat Sheet</option>
+        <option>Study Guide</option><option>Textbook</option><option>Link</option>
       </select>
 
       <select id="sortFilter">
@@ -585,8 +592,7 @@
             <label for="materialModule">Module*</label>
             <select id="materialModule" name="module" required>
               <option value="">Select Module</option>
-              <option>Mathematics</option><option>Physics</option><option>Computer Science</option>
-              <option>Chemistry</option><option>Biology</option>
+              <!-- Modules will be loaded dynamically from database -->
             </select>
           </div>
 
@@ -601,7 +607,7 @@
             <label for="materialType">Type*</label>
             <select id="materialType" name="type" required>
               <option>Lecture Notes</option><option>Past Papers</option>
-              <option>Study Guide</option><option>Textbook</option><option>Cheat Sheet</option>
+              <option>Study Guide</option><option>Textbook</option><option>Link</option>
             </select>
           </div>
 
@@ -622,7 +628,7 @@
             <div class="or-sep">— or —</div>
             <label for="linkInput">Paste a public link (Google Drive, Dropbox, etc.)</label>
             <input id="linkInput" name="link" placeholder="https://..." />
-            <div class="hint">Provide a file OR a link. If both are provided, you’ll be asked to pick one.</div>
+            <div class="hint">Provide a file OR a link. If both are provided, you'll be asked to pick one.</div>
           </div>
 
           <button type="submit" class="submit-btn"><i class="fas fa-upload"></i> Upload Material</button>
@@ -634,5 +640,9 @@
   <script src="materials.js"></script>
 </body>
 </html>
+
+
+
+
 
 
