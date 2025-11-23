@@ -93,9 +93,16 @@ Database: Render PostgreSQL
 
 Team Members (Group 12 — 2025)
 
-M.M. Mkhize (Team Lead & Backend Developer)
+1 M.M. Mkhize (Team Lead & Backend Developer)
 
-Other team members may be added here
+2. AA Xulu 
+202294363 (Team management)
+3. M Sithole 
+202261833 (Frontend Developer)
+4. M Mazibuko 
+202289082 
+5. NN Ngubane 
+202294799
 
 License
 
