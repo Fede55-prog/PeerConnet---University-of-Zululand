@@ -1,4 +1,4 @@
-#PeerConnect — University of Zululand
+PeerConnect — University of Zululand
 Final-Year Project (2025) — Group 12
 
 Team Lead: M. M. Mkhize
